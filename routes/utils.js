@@ -1,17 +1,21 @@
 const shortid = require("shortid");
 const models = require("../db/models");
-const redis = require("../redis");
-const Random = require("../Random");
-const constants = require("../constants");
+const redis = require("../modules/redis");
+const Random = require("../lib/Random");
+const constants = require("../data/constants");
 const names = require("../json/names");
 
 function getIP(req) {
 	return req.headers["x-forwarded-for"] || req.headers["cf-connecting-ip"] || req.connection.remoteAddress;
 }
 
+function getUserId(req) {
+	return req.session.user && req.session.user.id;
+}
+
 async function verifyLoggedIn(req, ignoreError) {
-	if (req.user && req.user.id)
-		return req.user.id;
+	if (req.session.user && req.session.user.id)
+		return req.session.user.id;
 	else if (!ignoreError)
 		throw new Error("Not logged in");
 }
@@ -21,7 +25,7 @@ async function verifyPermissions(...args) {
 
 	if (typeof args[0] == "string")
 		[userId, perms, rank] = args;
-	else 
+	else
 		[res, userId, perms, rank] = args;
 
 	var hasPermissions = await redis.hasPermissions(userId, perms, rank);
@@ -163,7 +167,7 @@ function parseTime(time) {
 	};
 
 	time = time.match(/(\d+)\s*([a-zA-Z]+)/);
-	
+
 	if (!time)
 		return;
 
@@ -234,7 +238,7 @@ async function createNotification(info, recipients, sockets) {
 			userFilter = { id: { $in: recipients } };
 
 		await models.User.updateMany(
-			userFilter, 
+			userFilter,
 			{ $push: { globalNotifs: notif._id } }
 		).exec();
 	}
@@ -290,6 +294,7 @@ async function getModIds() {
 
 module.exports = {
 	getIP,
+	getUserId,
 	verifyLoggedIn,
 	verifyPermissions,
 	verifyPermission,

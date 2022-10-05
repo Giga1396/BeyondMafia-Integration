@@ -65,14 +65,14 @@ export default function Profile() {
 					setBio(filterProfanity(res.data.bio, "\\*") || "");
 					setIsFriend(res.data.isFriend);
 					setSettings(res.data.settings);
-					setAccounts(res.data.accounts);
+					setAccounts(res.data.accounts || {});
 					setRecentGames(res.data.games);
 					setCreatedSetups(res.data.setups);
 					setMaxFriendsPage(res.data.maxFriendsPage);
 					setFriendRequests(res.data.friendRequests);
 					setStats(res.data.stats);
 
-					document.title = `${res.data.name}'s Profile | EpicMafia`;
+					document.title = `${res.data.name}'s Profile | BeyondMafia`;
 				})
 				.catch(e => {
 					errorAlert(e);
@@ -366,7 +366,7 @@ export default function Profile() {
 									<div className="icon discord-icon" />
 									<div className="username-wrapper">
 										<div className="username">
-											{accounts.discord.name}
+											{accounts.discord}
 										</div>
 									</div>
 								</div>
@@ -376,27 +376,17 @@ export default function Profile() {
 									<div className="icon twitch-icon" />
 									<div className="username-wrapper">
 										<div className="username">
-											{accounts.twitch.name}
+											{accounts.twitch}
 										</div>
 									</div>
 								</div>
 							}
-							{/* {accounts.google && settings.showGoogle &&
-								<div className="account-badge">
-									<div className="icon google-icon" />
-									<div className="username-wrapper">
-										<div className="username">
-											{accounts.google.name}
-										</div>
-									</div>
-								</div>
-							} */}
 							{accounts.steam && settings.showSteam &&
 								<div className="account-badge">
 									<div className="icon steam-icon" />
 									<div className="username-wrapper">
 										<div className="username">
-											{accounts.steam.name}
+											{accounts.steam}
 										</div>
 									</div>
 								</div>
@@ -429,7 +419,7 @@ export default function Profile() {
 						<div className="box-panel ratings">
 							<div className="heading">
 								Mafia Ratings
-						</div>
+							</div>
 							<div className="content">
 								{ratings}
 							</div>
@@ -438,7 +428,7 @@ export default function Profile() {
 					<div className="box-panel recent-games">
 						<div className="heading">
 							Recent Games
-					</div>
+						</div>
 						<div className="content">
 							{recentGamesRows}
 							{recentGames.length == 0 &&
@@ -450,7 +440,7 @@ export default function Profile() {
 						<div className="box-panel friend-requests">
 							<div className="heading">
 								Friend Requests
-						</div>
+							</div>
 							<div className="content">
 								{friendRequestRows}
 							</div>
@@ -459,7 +449,7 @@ export default function Profile() {
 					<div className="box-panel friends">
 						<div className="heading">
 							Friends
-					</div>
+						</div>
 						<div className="content">
 							<PageNav
 								page={friendsPage}
@@ -478,7 +468,7 @@ export default function Profile() {
 					<div className="box-panel created-setups">
 						<div className="heading">
 							Setups Created
-					</div>
+						</div>
 						<div className="content">
 							{createdSetupRows}
 							{createdSetups.length == 0 &&

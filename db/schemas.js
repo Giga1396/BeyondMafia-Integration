@@ -5,13 +5,14 @@ var schemas = {
         id: { type: String, index: true },
         name: { type: String, index: true },
         ip: [{ type: String, index: true }],
+        email: [{ type: String, index: true }],
+        fbUid: String,
         avatar: Boolean,
         banner: Boolean,
         bio: { type: String, default: "Click to edit your bio (ex. age, gender, location, interests, experience playing mafia)" },
         settings: {
             showDiscord: { type: Boolean, default: false },
             showTwitch: { type: Boolean, default: false },
-            showGoogle: { type: Boolean, default: false },
             showSteam: { type: Boolean, default: false },
             backgroundColor: String,
             bannerFormat: String,
@@ -21,22 +22,9 @@ var schemas = {
             hideDeleted: Boolean,
         },
         accounts: {
-            discord: {
-                id: { type: String, index: true },
-                name: { type: String }
-            },
-            twitch: {
-                id: { type: String, index: true },
-                name: { type: String }
-            },
-            google: {
-                id: { type: String, index: true },
-                name: { type: String }
-            },
-            steam: {
-                id: { type: String, index: true },
-                name: { type: String }
-            }
+            discord: String,
+            twitch: String,
+            steam: String,
         },
         joined: Number,
         lastActive: Number,

@@ -1,10 +1,10 @@
 const express = require("express");
 const shortid = require("shortid");
-const constants = require("../constants");
+const constants = require("../data/constants");
 const models = require("../db/models");
 const routeUtils = require("./utils");
-const redis = require("../redis");
-const logger = require("../logging")(".");
+const redis = require("../modules/redis");
+const logger = require("../modules/logging")(".");
 const router = express.Router();
 
 router.get("/groups", async function (req, res) {
@@ -612,7 +612,7 @@ router.post("/siteBan", async (req, res) => {
 		);
 
 		await models.User.updateOne({ id: userIdToBan }, { $set: { banned: true } }).exec();
-		await models.Session.deleteMany({ "session.passport.user.id": userIdToBan }).exec();
+		await models.Session.deleteMany({ "session.user.id": userIdToBan }).exec();
 
 		res.sendStatus(200);
 	}
@@ -623,7 +623,7 @@ router.post("/siteBan", async (req, res) => {
 	}
 });
 
-router.post("/signOut", async (req, res) => {
+router.post("/logout", async (req, res) => {
 	try {
 		var userId = await routeUtils.verifyLoggedIn(req);
 		var userIdToActOn = String(req.body.userId);
@@ -639,7 +639,7 @@ router.post("/signOut", async (req, res) => {
 		if (!(await routeUtils.verifyPermission(res, userId, perm, rank + 1)))
 			return;
 
-		await models.Session.deleteMany({ "session.passport.user.id": userIdToActOn }).exec();
+		await models.Session.deleteMany({ "session.user.id": userIdToActOn }).exec();
 		res.sendStatus(200);
 	}
 	catch (e) {

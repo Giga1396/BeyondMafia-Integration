@@ -1,14 +1,15 @@
 const express = require("express");
 const bluebird = require("bluebird");
 const fs = require("fs");
+const fbAdmin = require("firebase-admin");
 const formidable = bluebird.promisifyAll(require("formidable"), { multiArgs: true });
 const sharp = require("sharp");
 const color = require("color");
 const models = require("../db/models");
 const routeUtils = require("./utils");
-const redis = require("../redis");
-const constants = require("../constants");
-const logger = require("../logging")(".");
+const redis = require("../modules/redis");
+const constants = require("../data/constants");
+const logger = require("../modules/logging")(".");
 const router = express.Router();
 
 router.get("/info", async function (req, res) {
@@ -789,33 +790,37 @@ router.post("/unlink", async function (req, res) {
     }
 });
 
-router.post("/signout", async function (req, res) {
+router.post("/logout", async function (req, res) {
     try {
         var userId = await routeUtils.verifyLoggedIn(req);
-        await models.Session.deleteMany({ "session.passport.user.id": userId }).exec();
+        await models.Session.deleteMany({ "session.user.id": userId }).exec();
         res.sendStatus(200);
     }
     catch (e) {
         logger.error(e);
         res.status(500);
-        res.send("Error signing out.");
+        res.send("Error logging out.");
     }
 });
 
 router.post("/delete", async function (req, res) {
     try {
         var userId = await routeUtils.verifyLoggedIn(req);
+        var fbUid = req.session.user.fbUid;
+        var dbId = req.session.user._id;
         var ip = routeUtils.getIP(req);
 
         if (!(await routeUtils.rateLimit(ip, "deleteAccount", res)))
             return;
 
-        await models.Session.deleteMany({ "session.passport.user.id": userId }).exec();
+        // await models.Session.deleteMany({ "session.user.id": userId }).exec();
+        req.session.destroy();
+
         await models.ChannelOpen.deleteMany({ user: userId }).exec();
         await models.Notification.deleteMany({ user: userId }).exec();
         await models.Friend.deleteMany({ userId }).exec();
         await models.FriendRequest.deleteMany({ $or: [{ userId: userId }, { friendId: userId }] }).exec();
-        await models.InGroup.deleteMany({ user: req.user._id }).exec();
+        await models.InGroup.deleteMany({ user: dbId }).exec();
         await models.User.updateOne(
             { id: userId },
             {
@@ -825,6 +830,7 @@ router.post("/delete", async function (req, res) {
                     deleted: true
                 },
                 $unset: {
+                    fbUid: "",
                     avatar: "",
                     banner: "",
                     bio: "",
@@ -845,6 +851,7 @@ router.post("/delete", async function (req, res) {
             }
         ).exec();
 
+        await fbAdmin.auth().deleteUser(fbUid);
         await redis.setUserOffline(userId);
         await redis.deleteUserInfo(userId);
 

@@ -10,8 +10,7 @@ import { Nav } from "./components/Nav";
 import Game from "./pages/Game/Game";
 import Play from "./pages/Play/Play";
 import Community from "./pages/Community/Community";
-import Bots from "./pages/Bots/Bots";
-import Signin from "./pages/Signin/Signin";
+import Auth from "./pages/Auth/Auth";
 import User, { Avatar, useUser } from "./pages/User/User";
 import Legal from "./pages/Legal/Legal";
 import Popover, { usePopover } from "./components/Popover";
@@ -48,7 +47,7 @@ function Main() {
         async function getInfo() {
             try {
                 var res = await axios.get("/user/info")
-    
+
                 if (res.data.id) {
                     res.data.loggedIn = true;
                     res.data.loaded = true;
@@ -64,7 +63,7 @@ function Main() {
                 }
                 else
                     user.clear();
-    
+
                 if (res.data.nameChanged == false) {
                     siteInfo.showAlert(() => (
                         <div>
@@ -72,7 +71,7 @@ function Main() {
                         </div>
                     ), "basic", true);
                 }
-    
+
                 if (res.data.inGame) {
                     siteInfo.showAlert(index => (
                         <div>
@@ -87,7 +86,7 @@ function Main() {
             catch (e) {
                 errorAlert(e);
             }
-    
+
         }
 
         getInfo();
@@ -118,8 +117,7 @@ function Main() {
                                         <Switch>
                                             <Route path="/play" render={() => <Play />} />
                                             <Route path="/community" render={() => <Community />} />
-                                            <Route path="/bots" render={() => <Bots />} />
-                                            <Route path="/signin" render={() => <Signin />} />
+                                            <Route path="/auth" render={() => <Auth />} />
                                             <Route path="/user" render={() => <User />} />
                                             <Route path="/legal" render={() => <Legal />} />
                                             <Route render={() => <Redirect to="/play" />} />
@@ -151,11 +149,9 @@ function Header(props) {
                 <Nav>
                     <NavLink to="/play">Play</NavLink>
                     <NavLink to="/community">Community</NavLink>
-                    <a href="https://wiki.epicmafia.org">Wiki</a>
-                    {/* <a href="https://discord.gg/6MeWWHx">Community</a> */}
-                    {/* <NavLink to="/bots">Bots</NavLink> */}
+                    <a href="https://wiki.beyondmafia.com">Wiki</a>
                     {!user.loggedIn &&
-                        <NavLink to="/signin" className="nav-link">Sign In</NavLink>
+                        <NavLink to="/auth" className="nav-link">Log In</NavLink>
                     }
                     {user.loggedIn &&
                         <>
@@ -341,7 +337,7 @@ function Footer() {
     return (
         <div className="footer">
             <div className="footer-inner">
-                <p>© {year} EpicMafia</p>
+                <p>© {year} BeyondMafia</p>
             </div>
         </div>
     );

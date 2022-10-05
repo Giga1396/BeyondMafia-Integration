@@ -1,10 +1,10 @@
 const express = require("express");
 const shortid = require("shortid");
-const constants = require("../constants");
+const constants = require("../data/constants");
 const models = require("../db/models");
 const routeUtils = require("./utils");
-const redis = require("../redis");
-const logger = require("../logging")(".");
+const redis = require("../modules/redis");
+const logger = require("../modules/logging")(".");
 const router = express.Router();
 
 router.get("/", async function (req, res) {
@@ -92,7 +92,7 @@ router.post("/", async function (req, res) {
 
 		var comment = new models.Comment({
 			id: shortid.generate(),
-			author: req.user._id,
+			author: req.session.user._id,
 			date: Date.now(),
 			location,
 			content
